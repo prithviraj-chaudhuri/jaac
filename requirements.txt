@@ -5,3 +5,6 @@ langchain-openai==0.0.5
 python-dotenv==1.0.1
 ctransformers==0.2.27
 llama-cpp-python==0.2.43
+duckduckgo-search==4.4.3
+sentence-transformers==2.3.1
+chromadb==0.4.22
