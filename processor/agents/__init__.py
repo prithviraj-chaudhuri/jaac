@@ -1,6 +1,6 @@
-from agents.reactagent import ReactAgent
+from agents.simpleqa import SimpleQa
 
 def get_agent_list():
     agents = []
-    agents.append(ReactAgent())
+    agents.append(SimpleQa)
     return agents

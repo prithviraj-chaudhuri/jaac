@@ -134,3 +134,6 @@ dist
 __pycache__
 venv
 models
+
+
+conf
