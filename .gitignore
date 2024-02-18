@@ -139,4 +139,4 @@ venv
 models
 
 
-conf
+conf/.env
