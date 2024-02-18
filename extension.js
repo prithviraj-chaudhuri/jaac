@@ -3,6 +3,15 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
+const getResponse = async () => {
+	return new Promise((resolve, reject) => {
+		setTimeout(() => {
+		resolve("This is a test response");
+		}, 1000);
+	}).then(response => {
+		return response;
+	});
+}
 
 // This method is called when your extension is activated
 
@@ -23,9 +32,10 @@ function activate(context) {
 			const line = document.lineAt(position.line);
 			console.log(line.text);
 
-			// Generate
-			const snippetCompletion = new vscode.CompletionItem("Generate docs");
-			snippetCompletion.insertText = new vscode.SnippetString('\nThis is test');
+			// Generate docs here
+			const snippetCompletion = new vscode.CompletionItem('Generate docs');
+			var response = await getResponse();
+			snippetCompletion.insertText = new vscode.SnippetString('\n'+response);
 			return [
 				snippetCompletion
 			];
