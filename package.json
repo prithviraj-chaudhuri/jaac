@@ -1,7 +1,7 @@
 {
-  "name": "jaac-test",
-  "displayName": "jaac-test",
-  "description": "Just Another AutoComplete Test",
+  "name": "jaac",
+  "displayName": "jaac",
+  "description": "Just Another AutoComplete",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.86.0"
@@ -9,19 +9,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./extension.js",
-  "contributes": {
-    "commands": [{
-      "command": "jaac-test.helloWorld",
-      "title": "Hello World"
-    },
-    {
-      "command": "jaac-test.writeReadme",
-      "title": "Write README"
-    }
-  ]
-  },
+  "contributes": {},
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
