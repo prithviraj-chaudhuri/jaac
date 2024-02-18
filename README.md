@@ -65,3 +65,22 @@ You can author your README using Visual Studio Code.  Here are some useful edito
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+
+
+## Invoking the python package for testing the backend
+### Setup
+1. Create a conf directory in the root
+2. Create a .env and prompts.yaml file in the conf directory
+3. The .env file should have the following entries
+    ```MODEL_PATH=""
+    EMBEDDING=""
+    DOC_PATH="docs"
+    PROMPT_YAML_PATH="conf/prompts.yaml"```
+4. The prompts.yaml file should have the following prompts
+    ```
+    ---
+    simpleqa: ""
+    ```
+### Run the python package using the below command
+* `python processor/process.py --input="What does the function print_argument do?"`
+
