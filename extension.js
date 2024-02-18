@@ -3,12 +3,13 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const editor = vscode.window.activeTextEditor;
-const util = require('util');
 const { exec } = require('child_process');
 
 const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
-		exec('/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/venv/bin/python /Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/processor/process.py --input="'+input+'"', (err, stdout, stderr) => {
+		exec('/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/venv/bin/python '
+		+'/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/processor/process.py'
+		+' --input="'+input+'"', (err, stdout, stderr) => {
 			if (err) {
 			  resolve(err);
 			} else {
@@ -31,6 +32,26 @@ const getText = () => {
 	return text;
 }
 
+const executeGenerationCommand = (pos) => {
+	const text = getText();
+	vscode.window.withProgress({
+		location: vscode.ProgressLocation.Window,
+		cancellable: false,
+		title: 'Generating doc'
+	}, async (progress) => {
+		progress.report({  increment: 0 });
+		const generatedText = await generateText(text);
+		const snippet = new vscode.SnippetString();
+		if (pos == "above") {
+			snippet.appendText(generatedText+"\n"+text);
+		} else {
+			snippet.appendText(text+"\n"+generatedText);
+		}
+		editor.insertSnippet(snippet);
+		progress.report({ increment: 100 });
+	});
+}
+
 // This method is called when your extension is activated
 /**
  * @param {vscode.ExtensionContext} context
@@ -38,7 +59,9 @@ const getText = () => {
 function activate(context) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	console.log('Congratulations, your extension "jaac" is now active!');
+	console.log('"Jaac" is active!');
+
+	
 
 	// const md = { scheme: 'file', language: 'markdown' };
 	// const md_provider = vscode.languages.registerCompletionItemProvider(md, {
@@ -67,11 +90,7 @@ function activate(context) {
 	const generate_docs_above_provider = vscode.commands.registerCommand(
 		"jaac.generate-doc-above",
 		async () => {
-			const text = getText();
-			const generatedText = await generateText(text);
-			const snippet = new vscode.SnippetString();
-			snippet.appendText(generatedText+"\n"+text);
-			editor.insertSnippet(snippet);
+			executeGenerationCommand("above")
 		}
 	);
 	
@@ -81,11 +100,7 @@ function activate(context) {
 	const generate_doc_below_provider = vscode.commands.registerCommand(
 		"jaac.generate-doc-below",
 		async () => {
-			const text = getText();
-			const generatedText = await generateText(text);
-			const snippet = new vscode.SnippetString();
-			snippet.appendText(text+"\n"+generatedText);
-			editor.insertSnippet(snippet);
+			executeGenerationCommand("below")
 		}
 	);
 	
