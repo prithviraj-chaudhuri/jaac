@@ -6,9 +6,9 @@ const editor = vscode.window.activeTextEditor;
 const util = require('util');
 const { exec } = require('child_process');
 
-const getResponse = async () => {
+const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
-		exec('ls', (err, stdout, stderr) => {
+		exec('/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/venv/bin/python /Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/processor/process.py --input="'+input+'"', (err, stdout, stderr) => {
 			if (err) {
 			  resolve(err);
 			} else {
@@ -29,10 +29,6 @@ const getText = () => {
 		text = editor.document.getText(editor.selection);
 	}
 	return text;
-}
-
-const generateText = (context) => {
-	return getResponse();
 }
 
 // This method is called when your extension is activated
