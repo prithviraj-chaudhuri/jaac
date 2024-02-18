@@ -13,7 +13,30 @@
     "onStartupFinished"
   ],
   "main": "./extension.js",
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "jaac.generate-doc-below",
+        "title": "Generate Documentation Below"
+      },
+      {
+        "command": "jaac.generate-doc-above",
+        "title": "Generate Documentation Above"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "jaac.generate-doc-below",
+          "group": "Jaac@1"
+        },
+        {
+          "command": "jaac.generate-doc-above",
+          "group": "Jaac@2"
+        }
+      ]
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",

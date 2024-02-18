@@ -2,6 +2,7 @@
 
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const editor = vscode.window.activeTextEditor;
 
 const getResponse = async () => {
 	return new Promise((resolve, reject) => {
@@ -13,8 +14,22 @@ const getResponse = async () => {
 	});
 }
 
-// This method is called when your extension is activated
+const getText = () => {
+	let text = '';
+	if (editor.selection.isSingleLine) {
+		const line = editor.document.lineAt(editor.selection.active);
+		text = line.text;
+	} else {
+		text = editor.document.getText(editor.selection);
+	}
+	return text;
+}
 
+const generateText = (context) => {
+	return getResponse();
+}
+
+// This method is called when your extension is activated
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -45,6 +60,34 @@ function activate(context) {
 	});
 
 	context.subscriptions.push(md_provider);
+
+	//Right click menu with text selected generate doc above
+	const generate_docs_above_provider = vscode.commands.registerCommand(
+		"jaac.generate-doc-above",
+		async () => {
+			const text = getText();
+			const generatedText = await generateText(text);
+			const snippet = new vscode.SnippetString();
+			snippet.appendText(generatedText+"\n"+text);
+			editor.insertSnippet(snippet);
+		}
+	);
+	
+	context.subscriptions.push(generate_docs_above_provider);
+
+	//Right click menu with text selected generate doc below
+	const generate_doc_below_provider = vscode.commands.registerCommand(
+		"jaac.generate-doc-below",
+		async () => {
+			const text = getText();
+			const generatedText = await generateText(text);
+			const snippet = new vscode.SnippetString();
+			snippet.appendText(text+"\n"+generatedText);
+			editor.insertSnippet(snippet);
+		}
+	);
+	
+	context.subscriptions.push(generate_doc_below_provider);
 
 }
 
