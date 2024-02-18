@@ -38,28 +38,28 @@ function activate(context) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	console.log('Congratulations, your extension "jaac" is now active!');
 
-	const md = { scheme: 'file', language: 'markdown' };
-	const md_provider = vscode.languages.registerCompletionItemProvider(md, {
+	// const md = { scheme: 'file', language: 'markdown' };
+	// const md_provider = vscode.languages.registerCompletionItemProvider(md, {
 
-		async provideCompletionItems(document, position, token, context) {
+	// 	async provideCompletionItems(document, position, token, context) {
 
-			// Get Text entered in the line
-			const line = document.lineAt(position.line);
-			console.log(line.text);
+	// 		// Get Text entered in the line
+	// 		const line = document.lineAt(position.line);
+	// 		console.log(line.text);
 
-			// Generate docs here
-			const snippetCompletion = new vscode.CompletionItem('Generate docs');
-			var response = await getResponse();
-			snippetCompletion.insertText = new vscode.SnippetString('\n'+response);
-			return [
-				snippetCompletion
-			];
+	// 		// Generate docs here
+	// 		const snippetCompletion = new vscode.CompletionItem('Generate docs');
+	// 		var response = await getResponse();
+	// 		snippetCompletion.insertText = new vscode.SnippetString('\n'+response);
+	// 		return [
+	// 			snippetCompletion
+	// 		];
 
-		}
+	// 	}
 
-	});
+	// });
 
-	context.subscriptions.push(md_provider);
+	// context.subscriptions.push(md_provider);
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
