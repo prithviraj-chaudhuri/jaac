@@ -13,6 +13,7 @@ import yaml
 
 class SimpleQa:
 
+    #Initializing the llm, loader and the qa chain
     def __init__(self, model_path, embedding_model_name, docs_path, prompt_yaml_path):
         callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         llm = LlamaCpp(
@@ -54,7 +55,7 @@ class SimpleQa:
             document_variable_name="context"
         )
 
-
+    #Loading and parsing the document in runtime when the query is called
     def perform(self, query):
         documents_python = self.loader_python.load()
         splitter_python = RecursiveCharacterTextSplitter.from_language(language=Language.PYTHON, chunk_size=2000, chunk_overlap=200)

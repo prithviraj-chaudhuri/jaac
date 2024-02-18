@@ -1,6 +1,7 @@
 import dotenv
 import os
 from os.path import join, dirname
+import argparse
 
 import agents
 from router import simplerouter
@@ -16,7 +17,14 @@ if __name__ == "__main__":
     EMBEDDING = os.environ.get("EMBEDDING")
     DOC_PATH = os.environ.get("DOC_PATH")
     PROMPT_YAML_PATH = os.environ.get("PROMPT_YAML_PATH")
+
+    #Reading the query from the argument passed as an input
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', help='Query to be processed')
+    args = parser.parse_args()
+    query = args.input
      
+    #Instantiation the agent to do the processing
     router = simplerouter.SimpleRouter()
     agent_list = agents.get_agent_list()
     agent = router.select_agent(agent_list)(
@@ -24,4 +32,5 @@ if __name__ == "__main__":
         EMBEDDING,
         DOC_PATH,
         PROMPT_YAML_PATH)
-    print(agent.perform("What does the print_argument annotation do?"))
+    
+    print(agent.perform(query))
