@@ -3,12 +3,18 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const editor = vscode.window.activeTextEditor;
+const util = require('util');
+const { exec } = require('child_process');
 
 const getResponse = async () => {
 	return new Promise((resolve, reject) => {
-		setTimeout(() => {
-		resolve("This is a test response");
-		}, 1000);
+		exec('ls', (err, stdout, stderr) => {
+			if (err) {
+			  resolve(err);
+			} else {
+				resolve(stdout);
+			}
+		});
 	}).then(response => {
 		return response;
 	});
