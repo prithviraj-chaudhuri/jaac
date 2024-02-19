@@ -21,33 +21,34 @@ const generateText = async (input) => {
 	});
 }
 
-const getText = () => {
+const executeGenerationCommand = (relative_pos) => {
 	let text = '';
+	let range = null;
 	if (editor.selection.isSingleLine) {
 		const line = editor.document.lineAt(editor.selection.active);
 		text = line.text;
+		range = line.range;
 	} else {
 		text = editor.document.getText(editor.selection);
+		range = new vscode.Range(editor.selection.start, editor.selection.end);
 	}
-	return text;
-}
 
-const executeGenerationCommand = (pos) => {
-	const text = getText();
 	vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
 		cancellable: false,
 		title: 'Generating doc'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
+
 		const generatedText = await generateText(text);
 		const snippet = new vscode.SnippetString();
-		if (pos == "above") {
+		if (relative_pos == "above") {
 			snippet.appendText(generatedText+"\n"+text);
 		} else {
 			snippet.appendText(text+"\n"+generatedText);
 		}
-		editor.insertSnippet(snippet);
+		editor.insertSnippet(snippet, range);
+		
 		progress.report({ increment: 100 });
 	});
 }
