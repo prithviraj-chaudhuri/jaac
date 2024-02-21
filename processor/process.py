@@ -23,16 +23,16 @@ if __name__ == "__main__":
     query = args.input
     doc_path = args.doc
 
-    if doc_path is None:
+    if doc_path is None or doc_path is '':
         doc_path = os.environ.get("DOC_PATH")
     model_path = args.model_path
-    if model_path is None:
+    if model_path is None or model_path is '':
         model_path = os.environ.get("MODEL_PATH")
     embedding = args.embedding
-    if embedding is None:
+    if embedding is None or embedding is '':
         embedding = os.environ.get("EMBEDDING")
     prompt_yaml_path = args.prompt_yaml_path
-    if prompt_yaml_path is None:
+    if prompt_yaml_path is None or prompt_yaml_path is '':
         prompt_yaml_path = os.environ.get("PROMPT_YAML_PATH")
 
     #Instantiation the agent to do the processing

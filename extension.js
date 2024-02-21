@@ -8,25 +8,14 @@ const BELOW = 'below';
 
 let extensionPath = '';
 
-// const jaacSettings = {
-// 	"jaacSettings.embeddings": "",
-// 	"jaacSettings.modelPath": ""
-// }
+const settings = vscode.workspace.getConfiguration('jaac');
 
-// vscode.workspace.getConfiguration().registerConfigurationProvider("jaacSettings", {
-// 	provideConfiguration: async () => {
-// 		return jaacSettings;
-// 	}
-// }, vscode.ConfigurationTarget.Global);
+const modelPath = settings.get('modelPath') || '';
+const embeddings = settings.get('embeddings') || '';
+const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
 
 const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
-
-		// const modelPath = vscode.workspace.getConfiguration("jaacSettings").get("jaacSettings.modelPath");
-		// const embeddings = vscode.workspace.getConfiguration("jaacSettings").get("jaacSettings.embeddings");
-		const modelPath = '';
-		const embeddings = '';
-		const prompt_yaml_path = '';
 
 		const workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
