@@ -7,9 +7,13 @@ const { exec } = require('child_process');
 
 const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
+
+		const workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
 		exec('/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/venv/bin/python '
 		+'/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/processor/process.py'
-		+' --input="'+input+'"', (err, stdout, stderr) => {
+		+' --input="'+input+'"'
+		+' --doc="'+workSpacePath+'"', (err, stdout, stderr) => {
 			if (err) {
 			  resolve(err);
 			} else {
@@ -61,31 +65,6 @@ function activate(context) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	console.log('"Jaac" is active!');
-
-	
-
-	// const md = { scheme: 'file', language: 'markdown' };
-	// const md_provider = vscode.languages.registerCompletionItemProvider(md, {
-
-	// 	async provideCompletionItems(document, position, token, context) {
-
-	// 		// Get Text entered in the line
-	// 		const line = document.lineAt(position.line);
-	// 		console.log(line.text);
-
-	// 		// Generate docs here
-	// 		const snippetCompletion = new vscode.CompletionItem('Generate docs');
-	// 		var response = await getResponse();
-	// 		snippetCompletion.insertText = new vscode.SnippetString('\n'+response);
-	// 		return [
-	// 			snippetCompletion
-	// 		];
-
-	// 	}
-
-	// });
-
-	// context.subscriptions.push(md_provider);
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(

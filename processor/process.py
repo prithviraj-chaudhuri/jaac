@@ -15,22 +15,23 @@ if __name__ == "__main__":
     #Getting the environment configs
     MODEL_PATH = os.environ.get("MODEL_PATH")
     EMBEDDING = os.environ.get("EMBEDDING")
-    DOC_PATH = os.environ.get("DOC_PATH")
     PROMPT_YAML_PATH = os.environ.get("PROMPT_YAML_PATH")
 
     #Reading the query from the argument passed as an input
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', help='Query to be processed')
+    parser.add_argument('--doc', help='Folder containing the source code')
     args = parser.parse_args()
     query = args.input
-     
+    doc_path = args.doc
+
     #Instantiation the agent to do the processing
     router = simplerouter.SimpleRouter()
     agent_list = agents.get_agent_list()
     agent = router.select_agent(agent_list)(
         MODEL_PATH,
         EMBEDDING,
-        DOC_PATH,
+        doc_path,
         PROMPT_YAML_PATH)
     
     print(agent.perform(query))
