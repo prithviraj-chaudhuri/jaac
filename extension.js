@@ -17,13 +17,14 @@ const generateText = async (input) => {
 			extensionPath+'/venv/bin/python '
 			+extensionPath+'/processor/process.py'
 			+' --input="'+input+'"'
-			+' --doc="'+workSpacePath+'"', (err, stdout, stderr) => {
+			+' --doc="'+workSpacePath+'"', 
+			(err, stdout, stderr) => {
 				if (err) {
 					console.error(err);
 					resolve(ERROR);
 				} else if (stderr) {
 					console.error(stderr);
-					const substring = '[1m> Finished chain.[0m\n'
+					const substring = '[1m> Finished chain.[0m\n';
 					const output = stdout.substring(stdout.indexOf(substring) + substring.length) || '';
 					resolve(output);
 				}
