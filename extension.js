@@ -1,25 +1,32 @@
-// The module 'vscode' contains the VS Code extensibility API
-
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const editor = vscode.window.activeTextEditor;
 const { exec } = require('child_process');
+
+const ERROR = "error";
+const ABOVE = "above";
+const BELOW = "below";
+
+let extensionPath = "";
 
 const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
 
 		const workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
-		exec('/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/venv/bin/python '
-		+'/Users/prithvirajchaudhuri/Desktop/Other/Projects/jaac/processor/process.py'
-		+' --input="'+input+'"'
-		+' --doc="'+workSpacePath+'"', (err, stdout, stderr) => {
-			if (err) {
-			  resolve(err);
-			} else {
-				resolve(stdout);
+		exec(
+			extensionPath+'/venv/bin/python '
+			+extensionPath+'/processor/process.py'
+			+' --input="'+input+'"'
+			+' --doc="'+workSpacePath+'"', (err, stdout, stderr) => {
+				if (err) {
+					console.error(err);
+					resolve(ERROR);
+				} else if (stderr) {
+					console.error(stderr);
+					resolve(stdout);
+				}
 			}
-		});
+		);
 	}).then(response => {
 		return response;
 	});
@@ -45,14 +52,18 @@ const executeGenerationCommand = (relative_pos) => {
 		progress.report({  increment: 0 });
 
 		const generatedText = await generateText(text);
-		const snippet = new vscode.SnippetString();
-		if (relative_pos == "above") {
-			snippet.appendText(generatedText+"\n"+text);
+		if (generatedText === ERROR) {
+			vscode.window.showErrorMessage("Could not generate documentation, there was an error");
 		} else {
-			snippet.appendText(text+"\n"+generatedText);
+			const snippet = new vscode.SnippetString();
+			if (relative_pos == ABOVE) {
+				snippet.appendText(generatedText+"\n"+text);
+			} else {
+				snippet.appendText(text+"\n"+generatedText);
+			}
+			editor.insertSnippet(snippet, range);
 		}
-		editor.insertSnippet(snippet, range);
-		
+
 		progress.report({ increment: 100 });
 	});
 }
@@ -63,14 +74,14 @@ const executeGenerationCommand = (relative_pos) => {
  */
 function activate(context) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	console.log('"Jaac" is active!');
+	extensionPath = context.extensionPath;
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
 		"jaac.generate-doc-above",
 		async () => {
-			executeGenerationCommand("above")
+			executeGenerationCommand(ABOVE)
 		}
 	);
 	
@@ -80,7 +91,7 @@ function activate(context) {
 	const generate_doc_below_provider = vscode.commands.registerCommand(
 		"jaac.generate-doc-below",
 		async () => {
-			executeGenerationCommand("below")
+			executeGenerationCommand(BELOW)
 		}
 	);
 	
