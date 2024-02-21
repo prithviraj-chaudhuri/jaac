@@ -2,11 +2,11 @@ const vscode = require('vscode');
 const editor = vscode.window.activeTextEditor;
 const { exec } = require('child_process');
 
-const ERROR = "error";
-const ABOVE = "above";
-const BELOW = "below";
+const ERROR = 'error';
+const ABOVE = 'above';
+const BELOW = 'below';
 
-let extensionPath = "";
+let extensionPath = '';
 
 const generateText = async (input) => {
 	return new Promise((resolve, reject) => {
@@ -23,7 +23,9 @@ const generateText = async (input) => {
 					resolve(ERROR);
 				} else if (stderr) {
 					console.error(stderr);
-					resolve(stdout);
+					const substring = '[1m> Finished chain.[0m\n'
+					const output = stdout.substring(stdout.indexOf(substring) + substring.length) || '';
+					resolve(output);
 				}
 			}
 		);
@@ -51,15 +53,15 @@ const executeGenerationCommand = (relative_pos) => {
 	}, async (progress) => {
 		progress.report({  increment: 0 });
 
-		const generatedText = await generateText(text);
+		const generatedText = await generateText(text.trim());
 		if (generatedText === ERROR) {
-			vscode.window.showErrorMessage("Could not generate documentation, there was an error");
+			vscode.window.showErrorMessage('Could not generate documentation, there was an error');
 		} else {
 			const snippet = new vscode.SnippetString();
 			if (relative_pos == ABOVE) {
-				snippet.appendText(generatedText+"\n"+text);
+				snippet.appendText(generatedText+'\n'+text);
 			} else {
-				snippet.appendText(text+"\n"+generatedText);
+				snippet.appendText(text+'\n'+generatedText);
 			}
 			editor.insertSnippet(snippet, range);
 		}
@@ -79,7 +81,7 @@ function activate(context) {
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
-		"jaac.generate-doc-above",
+		'jaac.generate-doc-above',
 		async () => {
 			executeGenerationCommand(ABOVE)
 		}
@@ -89,7 +91,7 @@ function activate(context) {
 
 	//Right click menu with text selected generate doc below
 	const generate_doc_below_provider = vscode.commands.registerCommand(
-		"jaac.generate-doc-below",
+		'jaac.generate-doc-below',
 		async () => {
 			executeGenerationCommand(BELOW)
 		}
