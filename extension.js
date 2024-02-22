@@ -1,7 +1,7 @@
 const vscode = require('vscode');
-const editor = vscode.window.activeTextEditor;
-const { exec } = require('child_process');
 const axios = require('axios');
+const { exec } = require('child_process');
+const editor = vscode.window.activeTextEditor;
 
 const STATUS_OK = 201;
 const ERROR = 'error';
@@ -10,8 +10,8 @@ const BELOW = 'below';
 
 let extensionPath = '';
 let workSpacePath = '';
-const settings = vscode.workspace.getConfiguration('jaac');
 
+const settings = vscode.workspace.getConfiguration('jaac');
 const modelPath = settings.get('modelPath') || '';
 const embeddings = settings.get('embeddings') || '';
 const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
@@ -25,7 +25,6 @@ const callLlmApi = async (input) => {
 		prompt_yaml_path : prompt_yaml_path
 		
 	};
-
 	const response = await axios.post('http://127.0.0.1:5000', body);
 	return response;
 }
