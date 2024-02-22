@@ -1,50 +1,36 @@
 const vscode = require('vscode');
 const editor = vscode.window.activeTextEditor;
 const { exec } = require('child_process');
+const axios = require('axios');
 
+const STATUS_OK = 201;
 const ERROR = 'error';
 const ABOVE = 'above';
 const BELOW = 'below';
 
 let extensionPath = '';
-
+let workSpacePath = '';
 const settings = vscode.workspace.getConfiguration('jaac');
 
 const modelPath = settings.get('modelPath') || '';
 const embeddings = settings.get('embeddings') || '';
 const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
 
-const generateText = async (input) => {
-	return new Promise((resolve, reject) => {
+const callLlmApi = async (input) => {
+	const body = {
+		query : input,
+		doc_path : workSpacePath,
+		model_path : modelPath,
+		embedding : embeddings,
+		prompt_yaml_path : prompt_yaml_path
+		
+	};
 
-		const workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
-		exec(
-			extensionPath+'/venv/bin/python '
-			+extensionPath+'/processor/process.py'
-			+' --input="'+input+'"'
-			+' --doc="'+workSpacePath+'"'
-			+' --model_path="'+modelPath+'"'
-			+' --embedding="'+embeddings+'"'
-			+' --prompt_yaml_path="'+prompt_yaml_path+'"', 
-			(err, stdout, stderr) => {
-				if (err) {
-					console.error(err);
-					resolve(ERROR);
-				} else if (stderr) {
-					console.error(stderr);
-					const substring = '[1m> Finished chain.[0m\n';
-					const output = stdout.substring(stdout.indexOf(substring) + substring.length) || '';
-					resolve(output);
-				}
-			}
-		);
-	}).then(response => {
-		return response;
-	});
+	const response = await axios.post('http://127.0.0.1:5000', body);
+	return response;
 }
 
-const executeGenerationCommand = (relative_pos) => {
+const generateDoc = (relative_pos) => {
 	let text = '';
 	let range = null;
 	if (editor.selection.isSingleLine) {
@@ -57,16 +43,17 @@ const executeGenerationCommand = (relative_pos) => {
 	}
 
 	vscode.window.withProgress({
-		location: vscode.ProgressLocation.Window,
-		cancellable: false,
-		title: 'Generating doc'
+	location: vscode.ProgressLocation.Window,
+	cancellable: false,
+	title: 'Generating doc'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
 
-		const generatedText = await generateText(text.trim());
-		if (generatedText === ERROR) {
+		const response = await callLlmApi(text.trim());
+		if (response.status !== STATUS_OK) {
 			vscode.window.showErrorMessage('Could not generate documentation, there was an error');
 		} else {
+			const generatedText = response.data.answer;
 			const snippet = new vscode.SnippetString();
 			if (relative_pos == ABOVE) {
 				snippet.appendText(generatedText+'\n'+text);
@@ -78,7 +65,41 @@ const executeGenerationCommand = (relative_pos) => {
 
 		progress.report({ increment: 100 });
 	});
+} 
+
+const runPythonCommand = async (command) => {
+	return new Promise((resolve, reject) => {
+		exec(
+			extensionPath+'/venv/bin/python '
+			+extensionPath
+			+command, 
+			(err, stdout, stderr) => {
+				if (err) {
+					console.error(err);
+					resolve(ERROR);
+				} else if (stderr) {
+					console.error(stderr);
+					resolve(stdout);
+				}
+			}
+		);
+	}).then(response => {
+		return response;
+	});
 }
+
+const startFLaskServer = () => {
+	vscode.window.withProgress({
+		location: vscode.ProgressLocation.Window,
+		cancellable: false,
+		title: 'Starting llm service'
+	}, async (progress) => {
+		progress.report({  increment: 0 });
+		runPythonCommand('/processor/api.py');
+		progress.report({ increment: 100 });
+	});
+}
+
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -87,12 +108,15 @@ function activate(context) {
 
 	console.log('"Jaac" is active!');
 	extensionPath = context.extensionPath;
+	workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+
+	startFLaskServer();
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-above',
 		async () => {
-			executeGenerationCommand(ABOVE)
+			generateDoc(ABOVE)
 		}
 	);
 	
@@ -102,7 +126,7 @@ function activate(context) {
 	const generate_doc_below_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-below',
 		async () => {
-			executeGenerationCommand(BELOW)
+			generateDoc(BELOW)
 		}
 	);
 	
