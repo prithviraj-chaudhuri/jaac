@@ -14,7 +14,7 @@ import yaml
 class SimpleQa:
 
     #Initializing the llm, loader and the qa chain
-    def __init__(self, model_path, embedding_model_name, db_dir, prompt_yaml_path):
+    def __init__(self, model_path, embedding_model_name, db_path, prompt_yaml_path):
         callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         llm = LlamaCpp(
             model_path=model_path,
@@ -47,7 +47,7 @@ class SimpleQa:
             document_prompt=document_prompt,
             document_variable_name="context"
         )
-        self.db = Chroma(persist_directory=db_dir,embedding_function=embeddings)
+        self.db = Chroma(persist_directory=db_path, embedding_function=embeddings)
 
     #Loading and parsing the document in runtime when the query is called
     def perform(self, query):
