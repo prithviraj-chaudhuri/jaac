@@ -1,22 +1,8 @@
 const vscode = require('vscode');
 const cron = require('node-cron');
 const { runPythonCommand, callLlmApi, callDataSyncApi } = require('./helper')
+const { configs } = require('./configs');
 const editor = vscode.window.activeTextEditor;
-
-const dataSyncCronSchedule = '* * * * *';
-
-const STATUS_OK = 201;
-const ABOVE = 'above';
-const BELOW = 'below';
-
-let extensionPath = '';
-let workSpacePath = '';
-
-const settings = vscode.workspace.getConfiguration('jaac');
-const modelPath = settings.get('modelPath') || '';
-const embeddings = settings.get('embeddings') || '';
-const db_path = settings.get('db_path') || '';
-const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
 
 const runDataSync = () => {
 	console.log('Running cron to update vector db');
@@ -27,7 +13,7 @@ const runDataSync = () => {
 	title: 'Syncing project'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
-        callDataSyncApi(embeddings, workSpacePath, db_path);
+        callDataSyncApi(configs.EMBEDDING, configs.WORKSPACE_PATH, configs.DB_PATH);
         progress.report({ increment: 100 });
     });
 }
@@ -53,13 +39,13 @@ const generateDoc = (relative_pos) => {
 	}, async (progress) => {
 		progress.report({  increment: 0 });
 
-		const response = await callLlmApi(modelPath, embeddings, db_path, prompt_yaml_path, text.trim());
-		if (response.status !== STATUS_OK) {
+		const response = await callLlmApi(configs.MODEL_PATH, configs.EMBEDDING, configs.DB_PATH, configs.PROMPT_YAML_PATH, text.trim());
+		if (response.status !== configs.STATUS_OK) {
 			vscode.window.showErrorMessage('Could not generate documentation, there was an error');
 		} else {
 			const generatedText = response.data.answer;
 			const snippet = new vscode.SnippetString();
-			if (relative_pos == ABOVE) {
+			if (relative_pos == configs.ABOVE) {
 				snippet.appendText(generatedText+'\n'+text);
 			} else {
 				snippet.appendText(text+'\n'+generatedText);
@@ -71,7 +57,7 @@ const generateDoc = (relative_pos) => {
 	});
 } 
 
-const startFLaskServer = () => {
+const startFLaskServer = (extensionPath) => {
 	vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
 		cancellable: false,
@@ -90,17 +76,16 @@ const startFLaskServer = () => {
 function activate(context) {
 	console.log('"Jaac" is active!');
 
-	extensionPath = context.extensionPath;
-	workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+	let extensionPath = context.extensionPath;
 	
-	startFLaskServer();
-	cron.schedule(dataSyncCronSchedule, runDataSync);
+	startFLaskServer(extensionPath);
+	cron.schedule(configs.DATA_SYNC_CRON_SCHEDULE, runDataSync);
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-above',
 		async () => {
-			generateDoc(ABOVE)
+			generateDoc(configs.ABOVE)
 		}
 	);
 	
@@ -110,7 +95,7 @@ function activate(context) {
 	const generate_doc_below_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-below',
 		async () => {
-			generateDoc(BELOW)
+			generateDoc(configs.BELOW)
 		}
 	);
 	

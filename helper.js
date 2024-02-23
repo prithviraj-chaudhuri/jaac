@@ -1,7 +1,6 @@
 const { exec } = require('child_process');
+const { configs } = require('./configs');
 const axios = require('axios');
-
-const ERROR = 'error';
 
 const runPythonCommand = async (path, command) => {
 	return new Promise((resolve, reject) => {
@@ -12,7 +11,7 @@ const runPythonCommand = async (path, command) => {
 			(err, stdout, stderr) => {
 				if (err) {
 					console.error(err);
-					resolve(ERROR);
+					resolve(configs.ERROR);
 				} else if (stderr) {
 					console.error(stderr);
 					resolve(stdout);
@@ -32,7 +31,7 @@ const callLlmApi = async (modelPath, embeddings, db_path, prompt_yaml_path, inpu
 		prompt_yaml_path : prompt_yaml_path,
 		query : input
 	};
-	const response = await axios.post('http://127.0.0.1:5000/process', body);
+	const response = await axios.post(configs.SERVICE_HOST+'/process', body);
 	return response;
 }
 
@@ -42,7 +41,7 @@ const callDataSyncApi = async (embeddings, workSpacePath, db_path) => {
 		doc_path : workSpacePath,
 		db_path : db_path
 	};
-	const response = await axios.put('http://127.0.0.1:5000/data', body);
+	const response = await axios.put(configs.SERVICE_HOST+'/data', body);
 	return response;
 }
 
