@@ -1,11 +1,11 @@
 const vscode = require('vscode');
-const axios = require('axios');
-const { exec } = require('child_process');
-const { dataSyncCron } = require('./data-sync');
+const cron = require('node-cron');
+const { runPythonCommand, callLlmApi, callDataSyncApi } = require('./helper')
 const editor = vscode.window.activeTextEditor;
 
+const dataSyncCronSchedule = '* * * * *';
+
 const STATUS_OK = 201;
-const ERROR = 'error';
 const ABOVE = 'above';
 const BELOW = 'below';
 
@@ -15,22 +15,26 @@ let workSpacePath = '';
 const settings = vscode.workspace.getConfiguration('jaac');
 const modelPath = settings.get('modelPath') || '';
 const embeddings = settings.get('embeddings') || '';
+const db_path = settings.get('db_path') || '';
 const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
 
-const callLlmApi = async (input) => {
-	const body = {
-		query : input,
-		doc_path : workSpacePath,
-		model_path : modelPath,
-		embedding : embeddings,
-		prompt_yaml_path : prompt_yaml_path
-		
-	};
-	const response = await axios.post('http://127.0.0.1:5000/process', body);
-	return response;
+const runDataSync = () => {
+	console.log('Running cron to update vector db');
+
+    vscode.window.withProgress({
+	location: vscode.ProgressLocation.Window,
+	cancellable: false,
+	title: 'Syncing project'
+	}, async (progress) => {
+		progress.report({  increment: 0 });
+        callDataSyncApi(embeddings, workSpacePath, db_path);
+        progress.report({ increment: 100 });
+    });
 }
 
 const generateDoc = (relative_pos) => {
+	console.log('Starting doc generation');
+
 	let text = '';
 	let range = null;
 	if (editor.selection.isSingleLine) {
@@ -49,7 +53,7 @@ const generateDoc = (relative_pos) => {
 	}, async (progress) => {
 		progress.report({  increment: 0 });
 
-		const response = await callLlmApi(text.trim());
+		const response = await callLlmApi(modelPath, embeddings, db_path, prompt_yaml_path, text.trim());
 		if (response.status !== STATUS_OK) {
 			vscode.window.showErrorMessage('Could not generate documentation, there was an error');
 		} else {
@@ -67,27 +71,6 @@ const generateDoc = (relative_pos) => {
 	});
 } 
 
-const runPythonCommand = async (command) => {
-	return new Promise((resolve, reject) => {
-		exec(
-			extensionPath+'/venv/bin/python '
-			+extensionPath
-			+command, 
-			(err, stdout, stderr) => {
-				if (err) {
-					console.error(err);
-					resolve(ERROR);
-				} else if (stderr) {
-					console.error(stderr);
-					resolve(stdout);
-				}
-			}
-		);
-	}).then(response => {
-		return response;
-	});
-}
-
 const startFLaskServer = () => {
 	vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
@@ -95,7 +78,7 @@ const startFLaskServer = () => {
 		title: 'Starting llm service'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
-		runPythonCommand('/processor/api.py');
+		runPythonCommand(extensionPath, '/processor/api.py');
 		progress.report({ increment: 100 });
 	});
 }
@@ -105,12 +88,13 @@ const startFLaskServer = () => {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-
 	console.log('"Jaac" is active!');
+
 	extensionPath = context.extensionPath;
 	workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-
+	
 	startFLaskServer();
+	cron.schedule(dataSyncCronSchedule, runDataSync);
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
