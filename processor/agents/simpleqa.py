@@ -14,7 +14,7 @@ import yaml
 class SimpleQa:
 
     #Initializing the llm, loader and the qa chain
-    def __init__(self, model_path, embedding_model_name, docs_path, prompt_yaml_path):
+    def __init__(self, model_path, embedding_model_name, db_dir, prompt_yaml_path):
         callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
         llm = LlamaCpp(
             model_path=model_path,
@@ -25,16 +25,9 @@ class SimpleQa:
             n_ctx=4096,
             verbose=True
         )
-        self.embeddings = HuggingFaceEmbeddings(
+        embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model_name,
             model_kwargs={'device': 'cpu'}
-        )
-        self.loader_python = GenericLoader.from_filesystem(
-            docs_path,
-            glob="**/*",
-            suffixes=[".py"],
-            exclude=["**/non-utf8-encoding.py"],
-            parser=LanguageParser(language=Language.PYTHON, parser_threshold=500),
         )
 
         with open(prompt_yaml_path, 'r') as f:
@@ -54,15 +47,11 @@ class SimpleQa:
             document_prompt=document_prompt,
             document_variable_name="context"
         )
+        self.db = Chroma(persist_directory=db_dir,embedding_function=embeddings)
 
     #Loading and parsing the document in runtime when the query is called
     def perform(self, query):
-        documents_python = self.loader_python.load()
-        splitter_python = RecursiveCharacterTextSplitter.from_language(language=Language.PYTHON, chunk_size=2000, chunk_overlap=200)
-        texts_python = splitter_python.split_documents(documents_python)
-
-        db = Chroma.from_documents(texts_python, self.embeddings)
-        retriever = db.as_retriever(search_kwargs={"k": 1})
+        retriever = self.db.as_retriever(search_kwargs={"k": 1})
         
         qa = RetrievalQA(
             combine_documents_chain=self.chain,

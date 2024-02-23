@@ -26,7 +26,7 @@ const callLlmApi = async (input) => {
 		prompt_yaml_path : prompt_yaml_path
 		
 	};
-	const response = await axios.post('http://127.0.0.1:5000', body);
+	const response = await axios.post('http://127.0.0.1:5000/process', body);
 	return response;
 }
 

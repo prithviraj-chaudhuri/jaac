@@ -52,7 +52,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "node-cron": "^3.0.3",
-    "axios": "^1.6.7"
+    "axios": "^1.6.7",
+    "node-cron": "^3.0.3"
   }
 }
