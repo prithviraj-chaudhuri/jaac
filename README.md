@@ -82,5 +82,5 @@ You can author your README using Visual Studio Code.  Here are some useful edito
     simpleqa: ""
     ```
 ### Run the python package using the below command
-* `python processor/process.py --input="What does the function print_argument do?"`
+* `python processor/process.py --input="What does the function print_argument do?" `
 

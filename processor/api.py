@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 
 import agents
 from router import simplerouter
+from datastore import chroma_store
 
 app = Flask(__name__) 
 api = Api(app) 
@@ -11,9 +12,9 @@ class Processor(Resource):
 
     def post(self): 
         data = request.get_json()
-        doc_path = data.get('doc_path','')
         model_path = data.get('model_path','')
         embedding = data.get('embedding','')
+        db_path = data.get('db_path','')
         prompt_yaml_path = data.get('prompt_yaml_path','')
         query = data.get('query','')
 
@@ -22,7 +23,7 @@ class Processor(Resource):
         agent = router.select_agent(agent_list)(
             model_path,
             embedding,
-            doc_path,
+            db_path,
             prompt_yaml_path)
 
         response = {
@@ -30,9 +31,32 @@ class Processor(Resource):
         }
 
         return response, 201
-  
+    
+api.add_resource(Processor, '/process')
 
-api.add_resource(Processor, '/')
+
+class DataStore(Resource):
+
+    def put(self): 
+        data = request.get_json()
+        embedding = data.get('embedding','')
+        doc_path = data.get('doc_path','')
+        db_path = data.get('db_path','')
+        data_store = chroma_store.ChromaStore(embedding, doc_path, db_path)
+        if data_store.updateStore():
+            response = {
+                'message': "Data saved successfully"
+            }
+            return response, 201
+        else:
+            response = {
+                'message': "Some error occured"
+            }
+            return response, 500
+            
+api.add_resource(DataStore, '/data')
+
+
 
 if __name__ == '__main__': 
     app.run(debug = False) 

@@ -1,35 +1,35 @@
 const vscode = require('vscode');
-const axios = require('axios');
-const { exec } = require('child_process');
+const cron = require('node-cron');
+const { runPythonCommand, callLlmApi, callDataSyncApi } = require('./helper')
+const { configs } = require('./configs');
 const editor = vscode.window.activeTextEditor;
 
-const STATUS_OK = 201;
-const ERROR = 'error';
-const ABOVE = 'above';
-const BELOW = 'below';
+/**
+ * Function to run data sync from code base
+ */
+const runDataSync = () => {
+	console.log('Running cron to update vector db');
 
-let extensionPath = '';
-let workSpacePath = '';
-
-const settings = vscode.workspace.getConfiguration('jaac');
-const modelPath = settings.get('modelPath') || '';
-const embeddings = settings.get('embeddings') || '';
-const prompt_yaml_path = settings.get('prompt_yaml_path') || '';
-
-const callLlmApi = async (input) => {
-	const body = {
-		query : input,
-		doc_path : workSpacePath,
-		model_path : modelPath,
-		embedding : embeddings,
-		prompt_yaml_path : prompt_yaml_path
-		
-	};
-	const response = await axios.post('http://127.0.0.1:5000', body);
-	return response;
+    vscode.window.withProgress({
+	location: vscode.ProgressLocation.Window,
+	cancellable: false,
+	title: 'Syncing project'
+	}, async (progress) => {
+		progress.report({  increment: 0 });
+        const response = await callDataSyncApi(configs.EMBEDDING, configs.WORKSPACE_PATH, configs.DB_PATH);
+		if (response.status !== configs.STATUS_OK) {
+			vscode.window.showErrorMessage('Could not sync source code, there was an error');
+		}
+        progress.report({ increment: 100 });
+    });
 }
 
+/**
+ * Function to generate the docstring based on the selected text
+ */
 const generateDoc = (relative_pos) => {
+	console.log('Starting doc generation');
+
 	let text = '';
 	let range = null;
 	if (editor.selection.isSingleLine) {
@@ -48,13 +48,13 @@ const generateDoc = (relative_pos) => {
 	}, async (progress) => {
 		progress.report({  increment: 0 });
 
-		const response = await callLlmApi(text.trim());
-		if (response.status !== STATUS_OK) {
+		const response = await callLlmApi(configs.MODEL_PATH, configs.EMBEDDING, configs.DB_PATH, configs.PROMPT_YAML_PATH, text.trim());
+		if (response.status !== configs.STATUS_OK) {
 			vscode.window.showErrorMessage('Could not generate documentation, there was an error');
 		} else {
 			const generatedText = response.data.answer;
 			const snippet = new vscode.SnippetString();
-			if (relative_pos == ABOVE) {
+			if (relative_pos == configs.ABOVE) {
 				snippet.appendText(generatedText+'\n'+text);
 			} else {
 				snippet.appendText(text+'\n'+generatedText);
@@ -66,35 +66,17 @@ const generateDoc = (relative_pos) => {
 	});
 } 
 
-const runPythonCommand = async (command) => {
-	return new Promise((resolve, reject) => {
-		exec(
-			extensionPath+'/venv/bin/python '
-			+extensionPath
-			+command, 
-			(err, stdout, stderr) => {
-				if (err) {
-					console.error(err);
-					resolve(ERROR);
-				} else if (stderr) {
-					console.error(stderr);
-					resolve(stdout);
-				}
-			}
-		);
-	}).then(response => {
-		return response;
-	});
-}
-
-const startFLaskServer = () => {
+/**
+ * Function to start the flast server
+ */
+const startFLaskServer = (extensionPath) => {
 	vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
 		cancellable: false,
 		title: 'Starting llm service'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
-		runPythonCommand('/processor/api.py');
+		runPythonCommand(extensionPath, '/processor/api.py');
 		progress.report({ increment: 100 });
 	});
 }
@@ -104,18 +86,18 @@ const startFLaskServer = () => {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-
 	console.log('"Jaac" is active!');
-	extensionPath = context.extensionPath;
-	workSpacePath = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
-	startFLaskServer();
+	let extensionPath = context.extensionPath;
+	
+	startFLaskServer(extensionPath);
+	cron.schedule(configs.DATA_SYNC_CRON_SCHEDULE, runDataSync);
 
 	//Right click menu with text selected generate doc above
 	const generate_docs_above_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-above',
 		async () => {
-			generateDoc(ABOVE)
+			generateDoc(configs.ABOVE)
 		}
 	);
 	
@@ -125,7 +107,7 @@ function activate(context) {
 	const generate_doc_below_provider = vscode.commands.registerCommand(
 		'jaac.generate-doc-below',
 		async () => {
-			generateDoc(BELOW)
+			generateDoc(configs.BELOW)
 		}
 	);
 	
@@ -133,7 +115,9 @@ function activate(context) {
 
 }
 
-// This method is called when your extension is deactivated
+/**
+ * Function called when extension is deactivated
+ */
 function deactivate() {}
 
 module.exports = {
