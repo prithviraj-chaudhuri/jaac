@@ -4,7 +4,7 @@ const vscode = require('vscode');
 let settings = vscode.workspace.getConfiguration('jaac'),
 
 configs = {
-    DATA_SYNC_CRON_SCHEDULE : '* * * * *',
+    DATA_SYNC_CRON_SCHEDULE : '*/30 * * * *',
     STATUS_OK : 201,
     ABOVE : 'above',
     BELOW : 'below',
