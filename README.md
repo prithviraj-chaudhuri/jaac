@@ -1,8 +1,8 @@
 # jaac
 Just another auto complete
-# jaac-test README
+# jaac README
 
-This is the README for your extension "jaac-test". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "jaac". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
