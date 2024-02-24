@@ -2,6 +2,10 @@ const { exec } = require('child_process');
 const { configs } = require('./configs');
 const axios = require('axios');
 
+
+/**
+ * Function to run a python command
+ */
 const runPythonCommand = async (path, command) => {
 	return new Promise((resolve, reject) => {
 		exec(
@@ -23,6 +27,9 @@ const runPythonCommand = async (path, command) => {
 	});
 }
 
+/**
+ * Function to call the llmapi to generate doc
+ */
 const callLlmApi = async (modelPath, embeddings, db_path, prompt_yaml_path, input) => {
 	const body = {
 		model_path : modelPath,
@@ -35,6 +42,9 @@ const callLlmApi = async (modelPath, embeddings, db_path, prompt_yaml_path, inpu
 	return response;
 }
 
+/**
+ * Function to call data sync api
+ */
 const callDataSyncApi = async (embeddings, workSpacePath, db_path) => {
 	const body = {
 		embedding : embeddings,

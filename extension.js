@@ -4,6 +4,9 @@ const { runPythonCommand, callLlmApi, callDataSyncApi } = require('./helper')
 const { configs } = require('./configs');
 const editor = vscode.window.activeTextEditor;
 
+/**
+ * Function to run data sync from code base
+ */
 const runDataSync = () => {
 	console.log('Running cron to update vector db');
 
@@ -18,6 +21,9 @@ const runDataSync = () => {
     });
 }
 
+/**
+ * Function to generate the docstring based on the selected text
+ */
 const generateDoc = (relative_pos) => {
 	console.log('Starting doc generation');
 
@@ -57,6 +63,9 @@ const generateDoc = (relative_pos) => {
 	});
 } 
 
+/**
+ * Function to start the flast server
+ */
 const startFLaskServer = (extensionPath) => {
 	vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
@@ -103,7 +112,9 @@ function activate(context) {
 
 }
 
-// This method is called when your extension is deactivated
+/**
+ * Function called when extension is deactivated
+ */
 function deactivate() {}
 
 module.exports = {

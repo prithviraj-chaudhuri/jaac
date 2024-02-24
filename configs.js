@@ -10,10 +10,14 @@ configs = {
     BELOW : 'below',
     ERROR : 'error',
     SERVICE_HOST : 'http://127.0.0.1:5000',
+
+    // Configs from settings.json
     MODEL_PATH : settings.get('modelPath') || '',
     EMBEDDING : settings.get('embedding') || '',
     DB_PATH : settings.get('dbPath') || '',
     PROMPT_YAML_PATH : settings.get('promptYamlPath') || '',
+
+    // Configs from vscode workspace
     WORKSPACE_PATH : vscode.workspace.workspaceFolders[0].uri.fsPath
 };
 
