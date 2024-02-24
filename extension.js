@@ -16,7 +16,10 @@ const runDataSync = () => {
 	title: 'Syncing project'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
-        callDataSyncApi(configs.EMBEDDING, configs.WORKSPACE_PATH, configs.DB_PATH);
+        const response = await callDataSyncApi(configs.EMBEDDING, configs.WORKSPACE_PATH, configs.DB_PATH);
+		if (response.status !== configs.STATUS_OK) {
+			vscode.window.showErrorMessage('Could not sync source code, there was an error');
+		}
         progress.report({ increment: 100 });
     });
 }
