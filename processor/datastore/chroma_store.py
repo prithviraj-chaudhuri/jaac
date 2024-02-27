@@ -4,6 +4,7 @@ from langchain_community.document_loaders.parsers import LanguageParser
 from langchain.text_splitter import Language
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
+import os
 
 class ChromaStore:
 
@@ -30,3 +31,12 @@ class ChromaStore:
             return True
         except Exception:
             return False
+        
+    def listAllFiles(self, doc_path):
+        for root, _, files in os.walk(doc_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if '.git' not in file_path and '.vscode' not in file_path and 'node_modules' not in file_path and 'target' not in file_path and '.DS_Store' not in file_path:
+                    print(file_path)
+
+        return True
