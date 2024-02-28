@@ -45,11 +45,12 @@ const callLlmApi = async (modelPath, embeddings, db_path, prompt_yaml_path, inpu
 /**
  * Function to call data sync api
  */
-const callDataSyncApi = async (embeddings, workSpacePath, db_path) => {
+const callDataSyncApi = async (embeddings, workSpacePath, db_path, extensions_to_include) => {
 	const body = {
 		embedding : embeddings,
 		doc_path : workSpacePath,
-		db_path : db_path
+		db_path : db_path,
+		extensions_to_include: extensions_to_include
 	};
 	const response = await axios.put(configs.SERVICE_HOST+'/data', body);
 	return response;
