@@ -3,9 +3,8 @@ const vscode = require('vscode');
 // Default Extensions to exclude
 const extensionsInclude = [
     'py',
-    'java',
     'html',
-    'css'
+    'js'
 ];
 
 // Loading all settings from .vscode/settings.json

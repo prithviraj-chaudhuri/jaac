@@ -76,7 +76,7 @@ const startFLaskServer = (extensionPath) => {
 		title: 'Starting llm service'
 	}, async (progress) => {
 		progress.report({  increment: 0 });
-		// runPythonCommand(extensionPath, '/processor/api.py');
+		runPythonCommand(extensionPath, '/processor/api.py');
 		progress.report({ increment: 100 });
 	});
 }
