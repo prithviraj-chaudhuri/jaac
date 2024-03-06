@@ -42,9 +42,8 @@ class DataStore(Resource):
         embedding = data.get('embedding','')
         doc_path = data.get('doc_path','')
         db_path = data.get('db_path','')
-        extensions_to_include = data.get('extensions_to_include','')
         data_store = chroma_store.ChromaStore(embedding, doc_path, db_path)
-        if data_store.updateStore(doc_path, extensions_to_include):
+        if data_store.updateStore():
             response = {
                 'message': "Data saved successfully"
             }

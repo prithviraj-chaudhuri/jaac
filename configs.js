@@ -1,17 +1,10 @@
 const vscode = require('vscode');
 
-// Default Extensions to exclude
-const extensionsInclude = [
-    'py',
-    'html',
-    'js'
-];
-
 // Loading all settings from .vscode/settings.json
 let settings = vscode.workspace.getConfiguration('jaac');
 
 let configs = {
-    DATA_SYNC_CRON_SCHEDULE : '* * * * *',
+    DATA_SYNC_CRON_SCHEDULE : '*/10 * * * *',
     STATUS_OK : 201,
     ABOVE : 'above',
     BELOW : 'below',
@@ -23,7 +16,6 @@ let configs = {
     EMBEDDING : settings.get('embedding') || '',
     DB_PATH : settings.get('dbPath') || '',
     PROMPT_YAML_PATH : settings.get('promptYamlPath') || '',
-    EXTENSIONS_TO_INCLUDE : settings.get('extensionsInclude') || extensionsInclude,
 
     // Configs from vscode workspace
     WORKSPACE_PATH : vscode.workspace.workspaceFolders[0].uri.fsPath
