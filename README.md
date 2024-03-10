@@ -1,8 +1,8 @@
 # jaac
 Just another auto complete
-# jaac-test README
+# jaac README
 
-This is the README for your extension "jaac-test". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "jaac". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
@@ -82,5 +82,5 @@ You can author your README using Visual Studio Code.  Here are some useful edito
     simpleqa: ""
     ```
 ### Run the python package using the below command
-* `python processor/process.py --input="What does the function print_argument do?"`
+* `python processor/process.py --input="What does the function print_argument do?" `
 

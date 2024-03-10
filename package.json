@@ -1,7 +1,7 @@
 {
-  "name": "jaac-test",
-  "displayName": "jaac-test",
-  "description": "Just Another AutoComplete Test",
+  "name": "jaac",
+  "displayName": "jaac",
+  "description": "Just Another AutoComplete",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.86.0"
@@ -9,18 +9,33 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "jaac-test.helloWorld",
-      "title": "Hello World"
-    },
-    {
-      "command": "jaac-test.writeReadme",
-      "title": "Write README"
+    "commands": [
+      {
+        "command": "jaac.generate-doc-below",
+        "title": "Generate Documentation Below"
+      },
+      {
+        "command": "jaac.generate-doc-above",
+        "title": "Generate Documentation Above"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "jaac.generate-doc-below",
+          "group": "Jaac@1"
+        },
+        {
+          "command": "jaac.generate-doc-above",
+          "group": "Jaac@2"
+        }
+      ]
     }
-  ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -28,12 +43,16 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.86.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
+    "@types/vscode": "^1.86.0",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.9"
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "node-cron": "^3.0.3"
   }
 }
