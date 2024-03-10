@@ -6,3 +6,9 @@ def addNumbers(a, b):
 
 def printEnv():
     print(os.getenv("TEST"))
+
+
+def new_fuction():
+    printEnv()
+    result = addNumbers(10, 12)
+    return result

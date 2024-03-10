@@ -1,0 +1,57 @@
+_type: prompt
+input_types: {}
+input_variables:
+- agent_scratchpad
+- files
+- input
+- tool_names
+- tools
+metadata: null
+name: null
+output_parser: null
+partial_variables: {}
+tags: null
+template: "Answer the following questions using only the files in the directory. 
+  You have access to your own knowledge on python and the following tools:
+
+
+  {tools}
+
+
+  Use the following format:
+
+
+  Question: the input question you must answer
+
+  Thought: you should always think about what to do
+
+  Action: the action to take, should be one of [{tool_names}]
+
+  Action Input: the input to the action
+
+  Observation: the result of the action
+
+  ... (this Thought/Action/Action Input/Observation can repeat N times)
+
+  Thought: I now know the final answer
+
+  Final Answer: the final answer to the original input question
+
+
+  Begin!
+
+  Question: {input}
+
+  Thought: I'm not sure, let me look at the directory.
+
+  Action: list_directory
+
+  Action Input: .
+  
+  Observation: {files}
+
+  Question: {input}
+
+  Thought:{agent_scratchpad}"
+template_format: f-string
+validate_template: false
