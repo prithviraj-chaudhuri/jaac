@@ -1,10 +1,10 @@
 const vscode = require('vscode');
 
 // Loading all settings from .vscode/settings.json
-let settings = vscode.workspace.getConfiguration('jaac'),
+let settings = vscode.workspace.getConfiguration('jaac');
 
-configs = {
-    DATA_SYNC_CRON_SCHEDULE : '* * * * *',
+let configs = {
+    DATA_SYNC_CRON_SCHEDULE : '*/10 * * * *',
     STATUS_OK : 201,
     ABOVE : 'above',
     BELOW : 'below',
