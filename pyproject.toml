@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "jaac"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+langchain = "^0.1.9"
+python-dotenv = "^1.0.1"
+duckduckgo-search = "^4.5.0"
+sentence-transformers = "^2.4.0"
+chromadb = "^0.4.23"
+pyyaml = "^6.0.1"
+langchainhub = "^0.1.14"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
