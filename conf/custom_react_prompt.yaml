@@ -18,7 +18,7 @@ template: "Answer the following questions using only the files in the directory.
   {tools}
 
 
-  Use the following format:
+  Strictly Use the following format:
 
 
   Question: the input question you must answer
@@ -38,20 +38,96 @@ template: "Answer the following questions using only the files in the directory.
   Final Answer: the final answer to the original input question
 
 
+  Please keep the below important notes in mind while answering the question:
+    - When you have completed using the tools and have decided that none of the tools will serve any additional purpose,
+      use your own knowledge and the output of the tools to answer the question.
+      This would be your final answer.
+    - DO NOT REPEAT USAGE OF A TOOL WITH THE SAME ACTION AND ACTION INPUT. You can use the same tool multiple times, but the action and action input must be different.
+    - If there is a missing Action after a Thought, it is assumed that the Action is to use your own knowledge along with previous observations to answer the question or that you have reached the final answer.
+    - Do not ask the user for any additional inputs. The answer should be derived only from the given input and the tools provided.
+    - When you get the final answer just output the final answer and end the conversation.
+
+
+
+  Bekow is an example of how you should answer the question, DO NOT USE THIS EXAMPLE TO ANSWER THE QUESTION:
+  Consider a directory containing the following files:
+  - sample.py
+  - test.py
+  The code in sample.py is as follows:
+  ```import os
+
+  def addNumbers(a, b):
+      sum = a + b
+      return sum
+
+  def printEnv():
+      print(os.getenv('TEST'))
+
+  def new_fuction():
+      printEnv()
+      result = addNumbers(10, 12)
+      return result```
+
+    The code in test.py is as follows:
+    ```def print_argument(func):
+            def wrapper(the_number):
+                print('Argument for', func.__name__, 'is', the_number)
+                return func(the_number)
+            return wrapper
+
+        @print_argument
+        def add_one(x):
+            return x + 1
+        print(add_one(1))```
+
+  Question: What does the new_function function in sample.py do?
+  Thought: I'm not sure, let me look at the directory.
+  Action: list_directory
+  Action Input: .
+  Observation: sample.py, test.py
+  Thought: Hmm, I don't see any clues in the directory. Let me check the code.
+  Action: read_file
+  Action Input: sample.py
+  Observation: ```import os
+
+                  def addNumbers(a, b):
+                      sum = a + b
+                      return sum
+
+                  def printEnv():
+                      print(os.getenv('TEST'))
+
+
+                  def new_fuction():
+                      printEnv()
+                      result = addNumbers(10, 12)
+                      return result```
+  Thought: This file does not seem to contain the function new_function. Let me check the another file.
+  Action: read_file
+  Action Input: sample.py
+  Observation: ```import os
+
+                  def addNumbers(a, b):
+                      sum = a + b
+                      return sum
+
+                  def printEnv():
+                      print(os.getenv('TEST'))
+
+
+                  def new_fuction():
+                      printEnv()
+                      result = addNumbers(10, 12)
+                      return result```
+  Thought: I now know the final answer
+  Final Answer: Great, let's get started! Based on the code you provided, it looks like `new_function()` is a function that calls `printEnv()` and then performs some arithmetic operations using `addNumbers()`. To answer your original question, `new_function()` seems to be a function that prints an environment variable value and then adds two numbers.
+
+
+
+
   Begin!
 
   Question: {input}
-
-  Thought: I'm not sure, let me look at the directory.
-
-  Action: list_directory
-
-  Action Input: .
-  
-  Observation: {files}
-
-  Question: {input}
-
   Thought:{agent_scratchpad}"
 template_format: f-string
 validate_template: false
